@@ -1,0 +1,81 @@
+---
+- name: Deploy GenData Services
+  hosts: srv102
+  become: yes
+  vars:
+    project_dir: /opt/gendata-project
+    
+  tasks:
+    - name: Install Docker
+      apt:
+        name: 
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Copy project files
+      synchronize:
+        src: ../../
+        dest: "{{ project_dir }}"
+        delete: yes
+        rsync_opts:
+          - "--exclude=deploy"
+          - "--exclude=.git"
+
+    - name: Set ownership of project files
+      file:
+        path: "{{ project_dir }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+
+    - name: Stop existing containers
+      shell: |
+        cd {{ project_dir }}
+        docker compose down || true
+      become_user: "{{ ansible_user }}"
+      ignore_errors: yes
+
+    - name: Build and start services
+      shell: |
+        cd {{ project_dir }}
+        docker compose build --no-cache
+        docker compose up -d
+      become_user: "{{ ansible_user }}"
+
+    - name: Wait for services to be ready
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 8080
+        delay: 10
+        timeout: 60
+
+    - name: Show running containers
+      shell: docker ps
+      register: docker_ps
+      become_user: "{{ ansible_user }}"
+
+    - name: Display running containers
+      debug:
+        var: docker_ps.stdout_lines

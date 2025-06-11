@@ -1,0 +1,168 @@
+---
+- name: Deploy GenData Services
+  hosts: srv102
+  become: yes
+  vars:
+    project_dir: /opt/gendata-project
+    
+  tasks:
+    - name: Remove conflicting packages
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+      ignore_errors: yes
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - rsync
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Update apt cache after adding repository
+      apt:
+        update_cache: yes
+
+    - name: Install Docker CE
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Reset SSH connection to allow user changes to affect ansible user
+      meta: reset_connection
+
+    - name: Remove old project directory
+      file:
+        path: "{{ project_dir }}"
+        state: absent
+
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Copy project files using rsync
+      synchronize:
+        src: "{{ playbook_dir }}/../../"
+        dest: "{{ project_dir }}/"
+        delete: yes
+        rsync_opts:
+          - "--exclude=deploy/"
+          - "--exclude=.git/"
+          - "--exclude=*.log"
+          - "--exclude=.gitignore"
+        owner: no
+        group: no
+
+    - name: Set ownership of project files
+      file:
+        path: "{{ project_dir }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+
+    - name: Verify docker-compose.yml exists
+      stat:
+        path: "{{ project_dir }}/docker-compose.yml"
+      register: compose_file_check
+
+    - name: Fail if docker-compose.yml is missing
+      fail:
+        msg: "docker-compose.yml не найден в {{ project_dir }}"
+      when: not compose_file_check.stat.exists
+
+    - name: List project files for debugging
+      shell: ls -la {{ project_dir }}
+      register: project_files_list
+
+    - name: Show project files
+      debug:
+        var: project_files_list.stdout_lines
+
+    - name: Stop existing containers
+      shell: |
+        cd {{ project_dir }}
+        docker compose down || true
+      become_user: "{{ ansible_user }}"
+      ignore_errors: yes
+
+    - name: Build services
+      shell: |
+        cd {{ project_dir }}
+        docker compose build --no-cache
+      become_user: "{{ ansible_user }}"
+      register: build_result
+
+    - name: Show build output
+      debug:
+        var: build_result.stdout_lines
+
+    - name: Start services
+      shell: |
+        cd {{ project_dir }}
+        docker compose up -d
+      become_user: "{{ ansible_user }}"
+      register: start_result
+
+    - name: Show start output
+      debug:
+        var: start_result.stdout_lines
+
+    - name: Wait for services to be ready
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 8080
+        delay: 15
+        timeout: 60
+
+    - name: Show running containers
+      shell: docker ps
+      register: docker_ps
+      become_user: "{{ ansible_user }}"
+
+    - name: Display running containers
+      debug:
+        var: docker_ps.stdout_lines

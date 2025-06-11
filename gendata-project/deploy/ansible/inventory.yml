@@ -1,0 +1,6 @@
+all:
+  hosts:
+    srv102:
+      ansible_host: 192.168.88.102
+      ansible_user: starmark
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  receiver-service:
+    build:
+      context: ./receiver-service
+      dockerfile: Dockerfile
+    container_name: con-receiver
+    ports:
+      - "8080:8080"
+    networks:
+      - gendata-network
+    restart: unless-stopped
+
+  generator-service:
+    build:
+      context: ./generator-service
+      dockerfile: Dockerfile
+    container_name: con-gendata
+    depends_on:
+      - receiver-service
+    networks:
+      - gendata-network
+    restart: unless-stopped
+
+networks:
+  gendata-network:
+    driver: bridge
