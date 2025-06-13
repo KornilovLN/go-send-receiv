@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"gendata-project/receiver-service/internal/display"
+	//"gendata-project/receiver-service/internal/parser"
 	"gendata-project/receiver-service/internal/web"
 	"gendata-project/shared/protocol"
 )

@@ -323,3 +323,54 @@
                 text-align: center;
             }
         }
+
+        /* Добавьте эти стили к существующим */
+
+.parameters-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.parameters-table th {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.parameters-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.parameters-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.parameters-table tr:hover {
+    background-color: #e3f2fd;
+}
+
+.parameter-raw {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: rgba(52,152,219,0.1);
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+
+.parameter-passport {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* Остальные ваши стили остаются без изменений */

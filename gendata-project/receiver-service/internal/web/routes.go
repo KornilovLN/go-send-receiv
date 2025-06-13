@@ -8,6 +8,7 @@ import (
 // SetupRoutes настраивает маршруты для веб-сервера
 func (ws *WebServer) SetupRoutes() {
 	http.HandleFunc("/", ws.IndexHandler)
+	http.HandleFunc("/table", ws.TableHandler) // Новый маршрут для табличного отображения
 	http.HandleFunc("/api/stats", ws.StatsHandler)
 	http.HandleFunc("/api/messages", ws.MessagesHandler)
 	http.HandleFunc("/api/health", ws.HealthHandler)

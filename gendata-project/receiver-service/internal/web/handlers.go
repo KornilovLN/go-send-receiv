@@ -127,6 +127,12 @@ func (ws *WebServer) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(GetIndexTemplate()))
 }
 
+// TableHandler обрабатывает страницу с табличным отображением данных
+func (ws *WebServer) TableHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(GetTableTemplate()))
+}
+
 // StatsHandler возвращает статистику в JSON
 func (ws *WebServer) StatsHandler(w http.ResponseWriter, r *http.Request) {
 	stats := ws.Stats.GetStats()
