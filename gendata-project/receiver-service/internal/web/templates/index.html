@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GenData Monitor</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+	<div class="container">
+		<div class="header">
+			<h1>🔄 GenData Services Monitor</h1>
+			<div class="status" id="status">🟢 Активен</div>
+		</div>
+
+		<div class="cards">
+			<div class="card">
+				<h3>📊 Всего сообщений</h3>
+				<div class="stat-value" id="total-messages">0</div>
+				<div class="stat-label">Получено пакетов</div>
+			</div>
+			<div class="card">
+				<h3>⏰ Последнее обновление</h3>
+				<div class="stat-value" id="last-update" style="font-size: 1.2em;">-</div>
+				<div class="stat-label">Время получения</div>
+			</div>
+			<div class="card">
+				<h3>🕐 Время работы</h3>
+				<div class="stat-value" id="uptime" style="font-size: 1.5em;">-</div>
+				<div class="stat-label">Uptime сервиса</div>
+			</div>
+			<div class="card">
+				<h3>📈 Типы данных</h3>
+				<div id="message-types" class="message-types-list">
+					<div class="loading">Загрузка...</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="messages-container">
+			<div class="messages-header">
+				<h3>📨 Последние сообщения</h3>
+				<button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+			</div>
+			<div class="messages-list" id="messages-list">
+				<div class="loading">
+					<div class="spinner"></div>
+					Загрузка данных...
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="/static/js/dashboard.js"></script>
+	
+</body>
+</html>

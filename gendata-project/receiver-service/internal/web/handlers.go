@@ -135,24 +135,44 @@ func (ws *WebServer) TableHandler(w http.ResponseWriter, r *http.Request) {
 
 // StatsHandler возвращает статистику в JSON
 func (ws *WebServer) StatsHandler(w http.ResponseWriter, r *http.Request) {
-	stats := ws.Stats.GetStats()
+	//stats := ws.Stats.GetStats()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Cache-Control", "no-cache")
 
+	// Обработка preflight запросов
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	stats := ws.Stats.GetStats()
 	if err := json.NewEncoder(w).Encode(stats); err != nil {
 		http.Error(w, "Error encoding stats", http.StatusInternalServerError)
 		return
 	}
+
 }
 
 // MessagesHandler возвращает последние сообщения в JSON
 func (ws *WebServer) MessagesHandler(w http.ResponseWriter, r *http.Request) {
-	messages := ws.Stats.GetRecentMessages()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Cache-Control", "no-cache")
 
+	// Обработка preflight запросов
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	messages := ws.Stats.GetRecentMessages()
 	if err := json.NewEncoder(w).Encode(messages); err != nil {
 		http.Error(w, "Error encoding messages", http.StatusInternalServerError)
 		return
@@ -161,7 +181,19 @@ func (ws *WebServer) MessagesHandler(w http.ResponseWriter, r *http.Request) {
 
 // HealthHandler проверка здоровья сервиса
 func (ws *WebServer) HealthHandler(w http.ResponseWriter, r *http.Request) {
+	// Добавляем расширенные CORS заголовки
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Cache-Control", "no-cache")
+
+	// Обработка preflight запросов
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	response := map[string]interface{}{
 		"status":    "ok",
 		"timestamp": time.Now(),

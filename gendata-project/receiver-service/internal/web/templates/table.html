@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Данные датчиков</title>
+    <link rel="stylesheet" href="/static/css/tables.css">
+</head>
+<body>
+    <h1>Данные датчиков</h1>
+    
+    <div class="status" id="connection-status">🟢 Подключено</div>
+    
+    <div class="controls">
+        <button id="auto-scroll-btn" class="auto-scroll" onclick="toggleAutoScroll()">
+            🔄 Авто-прокрутка: ВКЛ
+        </button>
+        <button onclick="clearTable()">🗑️ Очистить</button>
+        <button onclick="loadTableData()">🔄 Обновить</button>
+        <span>Всего записей: <span id="total-count">0</span></span>
+    </div>
+
+    <div class="table-container" id="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Паспорт</th>
+                    <th>Тип</th>
+                    <th>Код типа</th>
+                    <th>Валидность</th>
+                    <th>Смещение</th>
+                    <th>Значение</th>
+                    <th>Байты</th>
+                    <th>Время</th>
+                </tr>
+            </thead>
+            <tbody id="sensor-data">
+                <tr><td colspan="9" class="loading">Загрузка данных...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+
+</body>
+</html>

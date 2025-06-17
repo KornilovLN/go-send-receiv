@@ -3,39 +3,78 @@ body {
     margin: 20px;
     background-color: #f5f5f5;
 }
-
 h1 {
     color: #333;
     text-align: center;
 }
-
+.controls {
+    text-align: center;
+    margin: 20px 0;
+}
+.controls button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.auto-scroll {
+    background-color: #4CAF50;
+    color: white;
+}
+.auto-scroll.disabled {
+    background-color: #f44336;
+}
+.table-container {
+    max-height: 1000px; /* Ограничиваем высоту таблицы */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
 table {
     width: 100%;
     border-collapse: collapse;
     background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 th, td {
     padding: 8px 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
-
 th {
     background-color: #4CAF50;
     color: white;
     font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
-
 tr:nth-child(even) {
     background-color: #f9f9f9;
 }
-
 tr:hover {
     background-color: #f5f5f5;
 }
-
-td[title] {
-    cursor: help;
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+.new-row {
+    background-color: #e8f5e8 !important;
+    animation: highlight 2s ease-out;
+}
+@keyframes highlight {
+    0% { background-color: #90EE90; }
+    100% { background-color: #e8f5e8; }
+}
+.status {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+.status.online {
+    color: #4CAF50;
+}
+.status.offline {
+    color: #f44336;
 }

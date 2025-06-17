@@ -14,7 +14,7 @@ func (ws *WebServer) SetupRoutes() {
 	http.HandleFunc("/api/health", ws.HealthHandler)
 
 	// Статические файлы (если понадобятся)
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 }
 
 // Start запускает веб-сервер
