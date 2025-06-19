@@ -1,0 +1,54 @@
+@startuml system_architecture
+
+package "Data Generation" {
+  [Generator] as gen
+}
+
+package "Data Processing" {
+  [Receiver] as recv
+  [Filtrator] as filt
+}
+
+package "Message Broker" {
+  [RabbitMQ] as rmq
+  [Redis] as redis
+}
+
+package "Data Storage" {
+  [InfluxDB] as influx
+  [QuestDB] as quest
+  [OpenTSDB] as opents
+}
+
+package "Monitoring" {
+  [Observer] as obs
+}
+
+package "Web Interface" {
+  [Dashboard] as dash
+}
+
+' Data flow connections
+gen --> recv : TCP:8080\nraw packets
+recv --> rmq : publish\nraw data
+recv --> redis : cache
+rmq --> influx : consume\nraw data
+rmq --> quest : consume\nraw data
+rmq --> filt : consume\nraw data
+filt --> opents : filtered data
+rmq --> obs : notifications
+obs --> influx : query data
+obs --> quest : query data
+obs --> opents : query data
+obs --> dash : web interface
+
+' Port annotations
+note right of recv : ports: 8080, 8081
+note right of influx : port: 8086
+note right of quest : port: 9000
+note right of opents : port: 4242
+note right of obs : port: 8082
+note right of rmq : port: 5672
+note right of redis : port: 6379
+
+@enduml

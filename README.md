@@ -96,3 +96,6 @@
   # or
 	ssh starmark@192.168.88.102 'cd /opt/gendata-project && docker compose ps' 
   ```
+
+docker inspect con-receiver | grep LogPath
+docker logs con-receiver --since 0s > /dev/null 2>&1

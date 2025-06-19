@@ -1,0 +1,42 @@
+@startuml data_flow_sequence
+participant Generator as G
+participant Receiver as R
+participant RabbitMQ as MQ
+participant Redis as Cache
+participant InfluxDB as IDB
+participant Filtrator as F
+participant OpenTSDB as OTSDB
+participant Observer as O
+participant WebDashboard as WD
+
+== Data Generation & Processing ==
+G -> R: Send raw data packet (TCP:8080)
+R -> R: Parse packet
+R -> Cache: Store parsed data
+R -> MQ: Publish to raw_data queue
+
+== Parallel Data Storage ==
+par Raw Data Storage
+  MQ -> IDB: Consume raw data
+  IDB -> IDB: Store raw data
+else Data Filtering
+  MQ -> F: Consume raw data
+  F -> F: Apply filters & thresholds
+  F -> OTSDB: Send filtered data
+  OTSDB -> OTSDB: Store filtered data
+end
+
+== Monitoring & Notifications ==
+MQ -> O: Send notification
+O -> IDB: Query raw data
+IDB -> O: Return data
+O -> OTSDB: Query filtered data
+OTSDB -> O: Return data
+O -> WD: Update dashboard
+WD -> WD: Display metrics
+
+== Web Interface ==
+note over R: Receiver also has\nweb interface (port 8081)
+R -> WD: Real-time data display
+
+@enduml

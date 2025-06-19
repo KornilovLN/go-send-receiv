@@ -1,4 +1,3 @@
-
 		let isLoading = false;
 
 		function formatTime(timestamp) {
