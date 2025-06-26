@@ -12,6 +12,13 @@ services:
     networks:
       - gendata-network
     restart: unless-stopped
+    # Ограничение логов Docker
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"      # Максимальный размер одного лог-файла
+        max-file: "3"        # Количество ротируемых файлов
+        compress: "true"     # Сжатие старых логов
 
   generator-service:
     build:
@@ -23,7 +30,14 @@ services:
     networks:
       - gendata-network
     restart: unless-stopped
-
+    # Ограничение логов Docker
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"       # Максимальный размер одного лог-файла
+        max-file: "2"        # Количество ротируемых файлов
+        compress: "true"     # Сжатие старых логов
+        
 networks:
   gendata-network:
     driver: bridge
