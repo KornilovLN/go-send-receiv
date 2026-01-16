@@ -2,35 +2,4 @@
 add_commit_push.sh
 tree
 pdf/
-md/
-
-# Binaries
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-gendata-project/generator-service/generator
-gendata-project/receiver-service/receiver
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Go workspace file
-go.work
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+save/

@@ -15,6 +15,10 @@ logs:
 stop:
 	ssh starmark@192.168.88.102 'cd /opt/gendata-project && docker compose down'
 
+# Перезапуск сервисов на удаленном сервере (без пересборки)
+restart:
+	ssh starmark@192.168.88.102 'cd /opt/gendata-project && docker compose restart'
+	
 # Очистка на удаленном сервере
 clean:
 	ssh starmark@192.168.88.102 'cd /opt/gendata-project && docker compose down --rmi all --volumes'

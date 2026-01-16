@@ -1,3 +1,6 @@
+// receiver-service/cmd/main.go
+// Это первая версия кода, которая запускает сервер для получения данных от генератора.
+// без отображения данных на http-странице.
 package main
 
 import (
@@ -7,32 +10,19 @@ import (
 	"net"
 
 	"gendata-project/receiver-service/internal/display"
-	//"gendata-project/receiver-service/internal/parser"
-	"gendata-project/receiver-service/internal/web"
 	"gendata-project/shared/protocol"
 )
 
 func main() {
 	log.Println("Запуск сервиса получения данных...")
 
-	// Создаем веб-сервер
-	webServer := web.NewWebServer()
-
-	// Запуск HTTP сервера для веб-интерфейса
-	go func() {
-		if err := webServer.Start("8081"); err != nil {
-			log.Printf("Ошибка HTTP сервера: %v", err)
-		}
-	}()
-
-	// Запуск TCP сервера для приема данных
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
-		log.Fatalf("Ошибка запуска TCP сервера: %v", err)
+		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 	defer listener.Close()
 
-	log.Println("TCP сервер запущен на порту 8080")
+	log.Println("Сервер запущен на порту 8080")
 
 	for {
 		conn, err := listener.Accept()
@@ -41,11 +31,11 @@ func main() {
 			continue
 		}
 
-		go handleConnection(conn, webServer)
+		go handleConnection(conn)
 	}
 }
 
-func handleConnection(conn net.Conn, webServer *web.WebServer) {
+func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	log.Printf("Новое соединение от %s", conn.RemoteAddr())
 
@@ -76,12 +66,9 @@ func handleConnection(conn net.Conn, webServer *web.WebServer) {
 		log.Printf("Получено сообщение типа: %s, размер данных: %d байт",
 			msg.Type, len(msg.Data))
 
-		// Отображаем данные в консоли (используем display)
+		// Отображаем данные
 		if err := display.DisplayDataBlock(msg.Data); err != nil {
 			log.Printf("Ошибка отображения данных: %v", err)
 		}
-
-		// Обрабатываем для веб-интерфейса (используем web)
-		webServer.ProcessMessage(msg)
 	}
 }

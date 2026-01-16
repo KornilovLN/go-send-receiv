@@ -2,39 +2,31 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Копируем все go.mod файлы
+# Копируем go.mod файлы
 COPY go.mod ./
 COPY shared/go.mod ./shared/
 COPY receiver-service/go.mod ./receiver-service/
 
-# Копируем shared модуль
+# Копируем исходный код
 COPY shared/ ./shared/
-
-# Копируем receiver-service
 COPY receiver-service/ ./receiver-service/
 
-# Переходим в директорию сервиса
+# Переходим в директорию receiver-service и работаем с модулями
 WORKDIR /app/receiver-service
 
-# Загружаем зависимости
-RUN go mod download
+# Инициализируем модули
+RUN go mod tidy
 
 # Собираем приложение
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o receiver ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o receiver ./cmd/main.go
 
-# Финальный образ
 FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates tzdata
-RUN apk add --no-cache netcat-openbsd
-
+RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-# Копируем бинарник
 COPY --from=builder /app/receiver-service/receiver .
+COPY --from=builder /app/receiver-service/static ./static
 
-# Открываем порт
-EXPOSE 8080
-
-# Запускаем приложение
+EXPOSE 8080 8081
 CMD ["./receiver"]
+

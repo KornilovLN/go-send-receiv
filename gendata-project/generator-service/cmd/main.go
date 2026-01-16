@@ -13,18 +13,25 @@ import (
 	"gendata-project/shared/types"
 )
 
+const (
+	LISTNUM   = 1 // ListNum
+	LISTVER   = 1 // ListVer
+	INDEX     = 1 // Index
+	NUMPARAMS = 5 // NumParams
+)
+
 func main() {
 	log.Println("Запуск генератора данных...")
 
 	// Получаем настройки из переменных окружения
 	receiverHost := getEnv("RECEIVER_HOST", "receiver-service")
 	receiverPort := getEnv("RECEIVER_PORT", "8080")
-	intervalStr := getEnv("GENERATION_INTERVAL", "5")
+	intervalStr := getEnv("GENERATION_INTERVAL", "1")
 
 	interval, err := strconv.Atoi(intervalStr)
 	if err != nil {
-		log.Printf("Неверный интервал генерации, используется значение по умолчанию: 5 секунд")
-		interval = 5
+		log.Printf("Неверный интервал генерации, используется значение по умолчанию: 1 секунд")
+		interval = 1
 	}
 
 	receiverAddr := receiverHost + ":" + receiverPort
@@ -39,8 +46,8 @@ func main() {
 		// Подключение к получателю
 		conn, err := net.Dial("tcp", receiverAddr)
 		if err != nil {
-			log.Printf("Ошибка подключения к получателю: %v. Повторная попытка через 5 секунд...", err)
-			time.Sleep(5 * time.Second)
+			log.Printf("Ошибка подключения к получателю: %v. Повторная попытка через 1 секунд...", err)
+			time.Sleep(1 * time.Second)
 			continue
 		}
 
@@ -62,16 +69,20 @@ func main() {
 			select {
 			case <-ticker.C:
 				// Генерируем данные для каждого типа
-				for i, dataType := range dataTypes {
+				for _, dataType := range dataTypes {
 					gid := generator.GIDCreater(1, 2, 1) // Север, NPP 2, Блок 1
 
 					header := generator.HeadBlockCreater(
 						gid,
 						dataType,
-						1,        // ListNum
-						1,        // ListVer
-						int16(i), // Index
-						5,        // NumParams
+						byte(LISTNUM),
+						byte(LISTVER),
+						int16(INDEX),
+						int16(NUMPARAMS),
+						//1,  // ListNum
+						//1,  // ListVer
+						//1,  //int16(i), // Index
+						//5,  // NumParams
 						time.Now(),
 					)
 
@@ -114,7 +125,7 @@ func main() {
 		ticker.Stop()
 		conn.Close()
 		log.Println("Соединение закрыто, переподключение...")
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
 

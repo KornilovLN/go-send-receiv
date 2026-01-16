@@ -1,39 +1,44 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   receiver-service:
     build:
       context: .
-      dockerfile: receiver-service/Dockerfile
+      dockerfile: ./receiver-service/Dockerfile
     container_name: con-receiver
     ports:
       - "8080:8080"
+      - "8081:8081"
     networks:
       - gendata-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # Ограничение логов Docker
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"      # Максимальный размер одного лог-файла
+        max-file: "3"        # Количество ротируемых файлов
+        compress: "true"     # Сжатие старых логов
 
   generator-service:
     build:
       context: .
-      dockerfile: generator-service/Dockerfile
+      dockerfile: ./generator-service/Dockerfile
     container_name: con-gendata
     depends_on:
-      receiver-service:
-        condition: service_healthy
+      - receiver-service
     networks:
       - gendata-network
     restart: unless-stopped
-    environment:
-      - RECEIVER_HOST=receiver-service
-      - RECEIVER_PORT=8080
-      - GENERATION_INTERVAL=5
-
+    # Ограничение логов Docker
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"       # Максимальный размер одного лог-файла
+        max-file: "2"        # Количество ротируемых файлов
+        compress: "true"     # Сжатие старых логов
+        
 networks:
   gendata-network:
     driver: bridge
+
